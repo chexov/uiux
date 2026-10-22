@@ -1,6 +1,8 @@
 # UI/UX Guide: Hardware with LEDs and Buttons
 
-Practical design rules for devices with only LEDs, physical buttons, and optionally a buzzer. Derived from MIL-STD-1472H. No screens.
+Practical design rules for devices with only LEDs, physical buttons, and optionally a buzzer. Derived from MIL-STD-1472H, cross-checked with **ASTM F1166** (marine/offshore) and **FAA HF-STD-001B**. No screens.
+
+Bare section numbers refer to MIL-STD-1472H. Other standards prefixed (`F1166`, `HF-STD`).
 
 Core principle: **one glance to understand state, one press to act.**
 
@@ -20,9 +22,12 @@ Use these consistently across all your devices. Never invent meanings.
 | **White** | Action in progress, position | Processing, neutral status indicator |
 
 Rules:
-- Max **6 colors** on a single device — fewer is better [5.17.25.5]
+- Max **6 colors** on a single device — fewer is better [5.17.25.5, F1166 §13.5.1]
 - Color **never the only indicator** — pair with position, label, or blink pattern [5.17.25.11]
+- All critical conditions must use **at least 3 coding channels simultaneously**: color + shape/position + text label [F1166 §13.5.5]
 - Color-blind users: red vs green is the most common confusion. Use **position** (red always on top/left) and **brightness difference** to distinguish [5.17.25.10]
+- Do not rely on red-vs-green as the only distinguishing colors on a single panel [HF-STD §5.6.11]
+- Under red-room lighting: green and blue LEDs **become invisible**. Use red, amber, white only on bridge panels intended for dark-adapted operators [F1166 §10.3]
 
 ---
 
@@ -65,6 +70,21 @@ Rules:
 - Provide a button to **acknowledge/suppress** blinking [5.17.27.6]
 - After acknowledgment, LED can go steady-on while condition persists
 
+### F1166 4-Level Annunciator Hierarchy
+
+For marine/industrial annunciator panels, ASTM F1166 prescribes a four-level hierarchy with explicit silence rules [F1166 §13.17.1]:
+
+| Level | Name | Indication | Audio | Silence rule |
+|---|---|---|---|---|
+| 1 | **Emergency** | Flashing red, must be largest | Continuous + visual; cannot silence without acknowledgement | Each acknowledged individually — **no "silence all"** |
+| 2 | **Warning** | Flashing amber | Audio + visual; acknowledgeable | "Silence all" permitted |
+| 3 | **Advisory** | Steady color | Visual only or brief audio | — |
+| 4 | **Status/Log** | None on panel | None | Logged internally only |
+
+- An **acknowledge button** must be physically present and labelled `ACK` or `ALARM ACK`
+- Pressing ACK while condition persists: blinking goes steady, audio stops; condition cleared → LED off
+- A separate **lamp test** button (or self-test on power-up) is required so failed LEDs can be detected
+
 ### Common Patterns
 
 | Pattern | Meaning |
@@ -98,6 +118,14 @@ Rules:
 - User must feel the actuation point clearly
 - Mushy or silent buttons are not acceptable for industrial use
 - If membrane buttons: add an **audible click** or **haptic response**
+
+### Marine / Sealed Environments (F1166)
+
+- Switches must be **sealed against splash and dust** to at least IP54 for exposed bridge panels [F1166 §13.27]
+- Surface-mount membrane keypads on exterior panels: **avoid** — degrade with UV and salt spray
+- Critical buttons must remain operable with **wet, gloved, or oily hands** — increase actuation force margin so vibration cannot trigger them
+- For panels mounted in vibration zones (engine room, propulsion deck): activation force **≥ 0.5 N**, two-step activation for any state change [F1166 §13.12.2]
+- Each button should be identifiable **by shape, position, and label** so the operator does not need to look at the panel in low-light or rough-sea conditions
 
 ### Layout Rules
 
@@ -176,6 +204,14 @@ If the device has a buzzer or speaker:
 - Don't startle: ramp up **≤ 30 dB in 0.5 seconds** [5.3.4.2.3]
 - First 0.2 seconds: not at max intensity [5.3.4.2.4]
 
+### Marine / High-Noise Environments (F1166)
+
+- Audio alerts must exceed ambient by **≥ 10 dB(A)** in marine environments [F1166 §14.1]
+- Volume must **auto-adjust** to current ambient noise — not a fixed setting [F1166 §13.10]
+- In compartments where ambient exceeds **85 dB(A)** (engine room, pump room): audio alone is insufficient. Must add **visual flashing beacon + vibrotactile** alert [F1166 §14.1]
+- Preferred tone band for detectability through machinery noise: **500–3,000 Hz** [F1166 §19.1, HF-STD §5.4.3]
+- For any condition requiring response within **60 seconds**: audio **must** accompany visual [F1166 §13.5.5]
+
 ---
 
 ## 7. State Communication with LEDs
@@ -244,6 +280,29 @@ Reasoning: operators scan top-to-bottom, left-to-right. Status on top, actions b
 - Labels **above or to the left** of the element they describe
 - Never label below a button (hand obscures it during use)
 - Group labels for a cluster of related elements
+
+### Panel Mounting Heights (F1166 §10)
+
+For panel-mounted controls and indicators in standing-operator workplaces, ASTM F1166 prescribes mounting heights relative to the deck:
+
+| Element | Mounting height (above standing deck) | Notes |
+|---|---|---|
+| Primary status displays (top of LED zone) | **1500–1750 mm** | Within natural line of sight |
+| Primary controls (center of button zone) | **1100–1400 mm** | Comfortable for standing reach |
+| Emergency stop button | **1100–1400 mm**, isolated | Reachable in any posture |
+| Lowest used control | **≥ 600 mm** | Below this, operator must crouch |
+| Highest used control | **≤ 1900 mm** | Above this, requires reach above shoulder — fatiguing |
+
+- For seated operators: subtract ~400 mm from each row
+- Panels accessed by both 5th-percentile female and 95th-percentile male must fit the **5th-percentile reach envelope** — design for the smaller operator first
+- Status boards intended for shared viewing across a compartment: top edge **≤ 2000 mm**, viewing distance margin sized so smallest text remains within the size formula `viewing_distance / 200` mm [F1166 §13.3.2]
+
+### Annunciator-Panel Placement
+
+- Alarm/warning LEDs must fall within the operator's **30-degree forward cone of vision** from the primary work position [5.18.2.1.2]
+- Safety-of-navigation indicators on bridges: **leftmost** position if multiple panels [5.18.2.1.3]
+- Panel **shall not face a window** — reflections kill legibility in daylight and reveal indicators outboard at night [5.18.2.1.9]
+- Critical indicator LEDs must be **visible even when their dimmer is set to minimum** [5.18.2.2.3.1.1]
 
 ---
 

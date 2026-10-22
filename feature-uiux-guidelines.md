@@ -1,7 +1,7 @@
 # Feature: UI/UX Guidelines Document
 
 ## What was done
-Created `mil-std-1472h-uiux-guidelines.md` — a comprehensive, reorganized reference document distilling MIL-STD-1472H human engineering requirements into actionable software UI/UX guidelines for industrial applications.
+Created `software-uiux-guidelines.md` (originally `mil-std-1472h-uiux-guidelines.md`) — a comprehensive reference document distilling **MIL-STD-1472H**, **ASTM F1166** (marine), and **FAA HF-STD-001B** (aviation) human engineering requirements into actionable software UI/UX guidelines for industrial, marine, defense, and aviation applications.
 
 ## Source
 Original reference: `/Users/chexov/code/kiwidocs/src/mil-std-1472h-uiux.md`
